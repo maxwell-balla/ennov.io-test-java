@@ -2,3 +2,11 @@ spring:
   profiles:
     active: dev
 
+server:
+  port: 8282
+  address: localhost
+  servlet:
+    context-path: /api/v1/
+  error:
+    whitelabel:
+      enabled: false
