@@ -22,6 +22,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -188,6 +189,172 @@ class UserServiceTest {
             verify(userRepository).findById(userId);
             verify(ticketRepository, never()).findAllByUserId(any());
             verify(ticketMapper, never()).ticketToTicketDto(any());
+        }
+    }
+
+    @Nested
+    @DisplayName("Find All Users Tests")
+    class FindAllUsersTests {
+
+        @Test
+        @DisplayName("Should return list of all users")
+        void shouldReturnListOfAllUsers() {
+            // Given
+            List<User> users = List.of(
+                    new User(1L, "user1", "user1@example.com", new ArrayList<>()),
+                    new User(2L, "user2", "user2@example.com", new ArrayList<>())
+            );
+            List<UserDto> userDtos = List.of(
+                    new UserDto(1L, "user1", "user1@example.com"),
+                    new UserDto(2L, "user2", "user2@example.com")
+            );
+
+            when(userRepository.findAll()).thenReturn(users);
+            when(userMapper.userToUserDto(users.get(0))).thenReturn(userDtos.get(0));
+            when(userMapper.userToUserDto(users.get(1))).thenReturn(userDtos.get(1));
+
+            // When
+            List<UserDto> result = userService.findAllUsers();
+
+            // Then
+            assertThat(result).isNotNull().hasSize(2);
+            assertThat(result).containsExactlyElementsOf(userDtos);
+            verify(userRepository).findAll();
+            verify(userMapper, times(2)).userToUserDto(any(User.class));
+        }
+
+        @Test
+        @DisplayName("Should return empty list when no users exist")
+        void shouldReturnEmptyListWhenNoUsersExist() {
+            // Given
+            when(userRepository.findAll()).thenReturn(new ArrayList<>());
+
+            // When
+            List<UserDto> result = userService.findAllUsers();
+
+            // Then
+            assertThat(result).isNotNull().isEmpty();
+            verify(userRepository).findAll();
+            verify(userMapper, never()).userToUserDto(any(User.class));
+        }
+    }
+
+    @Nested
+    @DisplayName("Modify User Tests")
+    class ModifyUserTests {
+
+        @Test
+        @DisplayName("Should update user with new username and email")
+        void shouldUpdateUserWithNewUsernameAndEmail() {
+            // Given
+            Long userId = 1L;
+            User existingUser = new User(userId, "olduser", "old@example.com", null);
+            UserDto inputDto = new UserDto(null, "newuser", "new@example.com");
+            User updatedUser = new User(userId, "newuser", "new@example.com", null);
+            UserDto outputDto = new UserDto(userId, "newuser", "new@example.com");
+
+            when(userRepository.findById(userId)).thenReturn(Optional.of(existingUser));
+            when(userRepository.save(any(User.class))).thenReturn(updatedUser);
+            when(userMapper.userToUserDto(any(User.class))).thenReturn(outputDto);
+
+            // When
+            UserDto result = userService.modifyUser(userId, inputDto);
+
+            // Then
+            assertThat(result).isEqualTo(outputDto);
+            verify(userRepository).findById(userId);
+            verify(userRepository).save(any(User.class));
+            verify(userMapper).userToUserDto(any(User.class));
+        }
+
+        @Test
+        @DisplayName("Should update user with only new username")
+        void shouldUpdateUserWithOnlyNewUsername() {
+            // Given
+            Long userId = 1L;
+            User existingUser = new User(userId, "olduser", "old@example.com", null);
+            UserDto inputDto = new UserDto(null, "newuser", null);
+            User updatedUser = new User(userId, "newuser", "old@example.com", null);
+            UserDto outputDto = new UserDto(userId, "newuser", "old@example.com");
+
+            when(userRepository.findById(userId)).thenReturn(Optional.of(existingUser));
+            when(userRepository.save(any(User.class))).thenReturn(updatedUser);
+            when(userMapper.userToUserDto(any(User.class))).thenReturn(outputDto);
+
+            // When
+            UserDto result = userService.modifyUser(userId, inputDto);
+
+            // Then
+            assertThat(result).isEqualTo(outputDto);
+            assertThat(result.email()).isEqualTo("old@example.com");
+            verify(userRepository).findById(userId);
+            verify(userRepository).save(any(User.class));
+            verify(userMapper).userToUserDto(any(User.class));
+        }
+
+        @Test
+        @DisplayName("Should update user with only new email")
+        void shouldUpdateUserWithOnlyNewEmail() {
+            // Given
+            Long userId = 1L;
+            User existingUser = new User(userId, "olduser", "old@example.com", null);
+            UserDto inputDto = new UserDto(null, null, "new@example.com");
+            User updatedUser = new User(userId, "olduser", "new@example.com", null);
+            UserDto outputDto = new UserDto(userId, "olduser", "new@example.com");
+
+            when(userRepository.findById(userId)).thenReturn(Optional.of(existingUser));
+            when(userRepository.save(any(User.class))).thenReturn(updatedUser);
+            when(userMapper.userToUserDto(any(User.class))).thenReturn(outputDto);
+
+            // When
+            UserDto result = userService.modifyUser(userId, inputDto);
+
+            // Then
+            assertThat(result).isEqualTo(outputDto);
+            assertThat(result.username()).isEqualTo("olduser");
+            verify(userRepository).findById(userId);
+            verify(userRepository).save(any(User.class));
+            verify(userMapper).userToUserDto(any(User.class));
+        }
+
+        @Test
+        @DisplayName("Should not update user when no changes are provided")
+        void shouldNotUpdateUserWhenNoChangesAreProvided() {
+            // Given
+            Long userId = 1L;
+            User existingUser = new User(userId, "olduser", "old@example.com", null);
+            UserDto inputDto = new UserDto(userId, "olduser", "old@example.com");
+            UserDto outputDto = new UserDto(userId, "olduser", "old@example.com");
+
+            when(userRepository.findById(userId)).thenReturn(Optional.of(existingUser));
+            when(userMapper.userToUserDto(any(User.class))).thenReturn(outputDto);
+
+            // When
+            UserDto result = userService.modifyUser(userId, inputDto);
+
+            // Then
+            assertThat(result).isEqualTo(outputDto);
+            verify(userRepository).findById(userId);
+            verify(userMapper).userToUserDto(any(User.class));
+        }
+
+        @Test
+        @DisplayName("Should throw UserNotFoundException when user does not exist")
+        void shouldThrowUserNotFoundExceptionWhenUserDoesNotExist() {
+            // Given
+            Long userId = 999L;
+            UserDto inputDto = new UserDto(null, "newuser", "new@example.com");
+
+            when(userRepository.findById(userId)).thenReturn(Optional.empty());
+
+            // When/Then
+            assertThatThrownBy(() -> userService.modifyUser(userId, inputDto))
+                    .isInstanceOf(UserNotFoundException.class)
+                    .hasMessageContaining("User not found: " + userId);
+
+            verify(userRepository).findById(userId);
+            verify(userRepository, never()).save(any(User.class));
+            verify(userMapper, never()).userToUserDto(any(User.class));
         }
     }
 }
