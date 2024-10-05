@@ -11,6 +11,7 @@ import io.ennov.ticket_management.repository.TicketRepository;
 import io.ennov.ticket_management.repository.UserRepository;
 import io.ennov.ticket_management.domain.mapper.UserMapper;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -90,5 +91,10 @@ public class UserService {
             existingUser.setEmail(userDto.email());
         }
         return existingUser;
+    }
+
+    public void deleteUser(Long userId) {
+        verifiedUser(userId);
+        userRepository.deleteById(userId);
     }
 }

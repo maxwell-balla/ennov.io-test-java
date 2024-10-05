@@ -357,4 +357,41 @@ class UserServiceTest {
             verify(userMapper, never()).userToUserDto(any(User.class));
         }
     }
+
+    @Nested
+    @DisplayName("Delete User Tests")
+    class DeleteUserTests {
+
+        @Test
+        @DisplayName("Should delete user successfully")
+        void shouldDeleteUserSuccessfully() {
+            // Given
+            Long userId = 1L;
+            when(userRepository.findById(userId)).thenReturn(Optional.of(new User()));
+            doNothing().when(userRepository).deleteById(userId);
+
+            // When
+            userService.deleteUser(userId);
+
+            // Then
+            verify(userRepository).findById(userId);
+            verify(userRepository).deleteById(userId);
+        }
+
+        @Test
+        @DisplayName("Should throw UserNotFoundException when user does not exist")
+        void shouldThrowUserNotFoundExceptionWhenUserDoesNotExist() {
+            // Given
+            Long userId = 999L;
+            when(userRepository.findById(userId)).thenReturn(Optional.empty());
+
+            // When/Then
+            assertThatThrownBy(() -> userService.deleteUser(userId))
+                    .isInstanceOf(UserNotFoundException.class)
+                    .hasMessageContaining("User not found: " + userId);
+
+            verify(userRepository).findById(userId);
+            verify(userRepository, never()).deleteById(anyLong());
+        }
+    }
 }
