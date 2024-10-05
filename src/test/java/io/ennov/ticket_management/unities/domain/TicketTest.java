@@ -1,4 +1,4 @@
-package io.ennov.ticket_management.unities.domains;
+package io.ennov.ticket_management.unities.domain;
 
 import io.ennov.ticket_management.domain.StatusTicket;
 import io.ennov.ticket_management.domain.Ticket;
