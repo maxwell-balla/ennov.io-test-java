@@ -22,7 +22,7 @@ import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -203,6 +203,42 @@ class UserControllerTest {
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(inputDto)))
                     .andExpect(status().isNotFound());
+        }
+    }
+
+    @Nested
+    @DisplayName("Delete User Tests")
+    class DeleteUserTests {
+
+        @Test
+        @DisplayName("Should delete user successfully")
+        void shouldDeleteUserSuccessfully() throws Exception {
+            // Given
+            Long userId = 1L;
+            doNothing().when(userService).deleteUser(userId);
+
+            // When & Then
+            mockMvc.perform(delete("/users/{userId}", userId)
+                            .contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isNoContent());
+
+            verify(userService).deleteUser(userId);
+        }
+
+        @Test
+        @DisplayName("Should return 404 Not Found when user does not exist")
+        void shouldReturn404WhenUserDoesNotExist() throws Exception {
+            // Given
+            Long userId = 999L;
+            doThrow(new UserNotFoundException("User not found: " + userId))
+                    .when(userService).deleteUser(userId);
+
+            // When & Then
+            mockMvc.perform(delete("/users/{userId}", userId)
+                            .contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isNotFound());
+
+            verify(userService).deleteUser(userId);
         }
     }
 }

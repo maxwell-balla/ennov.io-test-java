@@ -8,4 +8,7 @@ public record UserDto(
         @Email(message = "Email should be valid")
         String email
 ) {
+        public UserDto(String username, String email) {
+                this(null, username, email);
+        }
 }
