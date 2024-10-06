@@ -1,6 +1,7 @@
 package io.ennov.ticket_management.user;
 
 import io.ennov.ticket_management.ticket.TicketDto;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -11,6 +12,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("users")
+@Tag(name = "User")
 @RequiredArgsConstructor
 public class UserController {
 
