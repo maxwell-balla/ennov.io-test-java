@@ -1,4 +1,4 @@
-package io.ennov.ticket_management.exception;
+package io.ennov.ticket_management.exception.handler;
 
 import lombok.Data;
 
