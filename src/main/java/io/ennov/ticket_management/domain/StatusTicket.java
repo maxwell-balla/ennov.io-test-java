@@ -1,4 +1,4 @@
-package io.ennov.ticket_management.domain.ticket;
+package io.ennov.ticket_management.domain;
 
 public enum StatusTicket {
     PENDING,
