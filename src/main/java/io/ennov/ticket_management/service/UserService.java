@@ -11,9 +11,11 @@ import io.ennov.ticket_management.repository.TicketRepository;
 import io.ennov.ticket_management.repository.UserRepository;
 import io.ennov.ticket_management.domain.mapper.UserMapper;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -34,11 +36,19 @@ public class UserService {
     }
 
     private void validateNewUser(UserDto dto) {
-        if (userRepository.existsByUsername(dto.username())) {
-            throw new UsernameAlreadyExistsException("Username already exists: " + dto.username());
+        usernameExists(dto.username());
+        emailExists(dto.email());
+    }
+
+    void emailExists(String email) {
+        if (userRepository.existsByEmail(email)) {
+            throw new EmailAlreadyExistsException("Email already exists: " + email);
         }
-        if (userRepository.existsByEmail(dto.email())) {
-            throw new EmailAlreadyExistsException("Email already exists: " + dto.email());
+    }
+
+    void usernameExists(String username) {
+        if (userRepository.existsByUsername(username)) {
+            throw new UsernameAlreadyExistsException("Username already exists: " + username);
         }
     }
 
@@ -48,11 +58,43 @@ public class UserService {
         return ticketRepository.findAllByUserId(userId)
                 .stream()
                 .map(ticketMapper::ticketToTicketDto)
-                .collect(Collectors.toList());
+                .collect(Collectors.toCollection(ArrayList::new));
     }
 
     private void verifiedUser(Long userId) {
         userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("User not found: " + userId));
+    }
+
+    public List<UserDto> findAllUsers() {
+        return userRepository.findAll()
+                .stream()
+                .map(userMapper::userToUserDto)
+                .collect(Collectors.toCollection(ArrayList::new));
+    }
+
+    public UserDto modifyUser(Long userId, UserDto userDto) {
+        User existingUser = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("User not found: " + userId));
+        User newUser = mergeToNewUser(existingUser, userDto);
+        userRepository.save(newUser);
+        return userMapper.userToUserDto(newUser);
+    }
+
+    private User mergeToNewUser(User existingUser, UserDto userDto) {
+        if (userDto.username() != null && !existingUser.getUsername().equals(userDto.username())) {
+            usernameExists(userDto.username());
+            existingUser.setUsername(userDto.username());
+        }
+        if (userDto.email() != null && !existingUser.getEmail().equals(userDto.email())) {
+            emailExists(userDto.email());
+            existingUser.setEmail(userDto.email());
+        }
+        return existingUser;
+    }
+
+    public void deleteUser(Long userId) {
+        verifiedUser(userId);
+        userRepository.deleteById(userId);
     }
 }

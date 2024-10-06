@@ -33,4 +33,27 @@ public class UserController {
         List<TicketDto> ticketList = userService.findTicketByUser(userId);
         return new ResponseEntity<>(ticketList, HttpStatus.OK);
     }
+
+    @GetMapping()
+    public ResponseEntity<List<UserDto>> getAllUsers() {
+        List<UserDto> userList = userService.findAllUsers();
+        return new ResponseEntity<>(userList, HttpStatus.OK);
+    }
+
+    @PutMapping("/{userId}")
+    public ResponseEntity<UserDto> updateUser(
+            @PathVariable Long userId,
+            @RequestBody @Valid UserDto userDto
+    ) {
+        UserDto newUser = userService.modifyUser(userId, userDto);
+        return new ResponseEntity<>(newUser, HttpStatus.OK);
+    }
+
+    @DeleteMapping("/{userId}")
+    public ResponseEntity<Void> deleteUser(
+            @PathVariable Long userId
+    ) {
+        userService.deleteUser(userId);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
 }
