@@ -1,4 +1,4 @@
-package io.ennov.ticket_management.unities.controllers;
+package io.ennov.ticket_management.unities.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.ennov.ticket_management.controller.UserController;

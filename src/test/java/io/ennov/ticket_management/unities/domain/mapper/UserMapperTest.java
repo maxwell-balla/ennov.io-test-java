@@ -1,4 +1,4 @@
-package io.ennov.ticket_management.unities.domains.mapper;
+package io.ennov.ticket_management.unities.domain.mapper;
 
 import io.ennov.ticket_management.domain.User;
 import io.ennov.ticket_management.domain.mapper.UserMapper;
