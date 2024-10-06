@@ -57,9 +57,6 @@ To run the tests, execute:
 mvn test
 ```
 
-## Contributing
-Please read CONTRIBUTING.md for details on our code of conduct, and the process for submitting pull requests.
-
 ## LinkedIn
 Maxwell Balla : https://www.linkedin.com/in/maxwell-balla/
 
