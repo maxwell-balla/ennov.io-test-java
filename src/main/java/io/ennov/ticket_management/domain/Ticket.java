@@ -1,12 +1,12 @@
-package io.ennov.ticket_management.domain.ticket;
+package io.ennov.ticket_management.domain;
 
-import io.ennov.ticket_management.domain.user.User;
 import jakarta.persistence.*;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 @Getter
 @Setter
-@Builder
+@SuperBuilder
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
@@ -14,7 +14,8 @@ import lombok.*;
 public class Ticket {
 
     @Id
-    private String id;
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private Long id;
 
     private String title;
     private String description;
