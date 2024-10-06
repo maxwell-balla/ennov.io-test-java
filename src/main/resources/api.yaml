@@ -94,9 +94,9 @@ paths:
             type: integer
             format: int64
       responses:
-        '204':
+        "204":
           description: Successful operation
-        '404':
+        "404":
           description: User not found
 
   /users/{id}/ticket:

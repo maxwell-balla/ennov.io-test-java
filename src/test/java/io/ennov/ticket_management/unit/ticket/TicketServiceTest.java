@@ -1,6 +1,7 @@
 package io.ennov.ticket_management.unit.ticket;
 
 import io.ennov.ticket_management.shared.AssignedDto;
+import io.ennov.ticket_management.shared.ConflictAssignException;
 import io.ennov.ticket_management.ticket.StatusTicket;
 import io.ennov.ticket_management.ticket.Ticket;
 import io.ennov.ticket_management.ticket.TicketMapper;
@@ -334,6 +335,26 @@ class TicketServiceTest {
             assertThatThrownBy(() -> ticketService.assignTicket(ticketId, userId))
                     .isInstanceOf(TicketNotFoundException.class)
                     .hasMessageContaining("Ticket not found: " + ticketId);
+
+            verify(ticketRepository, never()).save(any(Ticket.class));
+        }
+
+        @Test
+        @DisplayName("Should throw ConflictAssignException when ticket is already assigned")
+        void shouldThrowConflictAssignExceptionWhenTicketIsAlreadyAssigned() {
+            // Given
+            Long ticketId = 1L;
+            Long userId = 2L;
+            User existingUser = new User(3L, "existinguser", "existing@example.com", null);
+            Ticket ticket = new Ticket(ticketId, "Test Ticket", "Description", StatusTicket.PENDING, existingUser);
+
+            when(userRepository.findById(userId)).thenReturn(Optional.of(new User()));
+            when(ticketRepository.findById(ticketId)).thenReturn(Optional.of(ticket));
+
+            // When/Then
+            assertThatThrownBy(() -> ticketService.assignTicket(ticketId, userId))
+                    .isInstanceOf(ConflictAssignException.class)
+                    .hasMessage("Ticket is already assigned to another user");
 
             verify(ticketRepository, never()).save(any(Ticket.class));
         }
