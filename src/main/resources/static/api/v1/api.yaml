@@ -1,0 +1,303 @@
+openapi: 3.0.0
+info:
+  title: OpenAPI specification - Ticket Management
+  description: OpenAPI documentation for Ticket Management Project
+  version: 1.0.0
+  contact:
+    name: Maxwell Balla
+    email: ballamaxwell7@gmail.com
+  license:
+    name: Licence ennov
+    url: https://www.ennov.io/
+  termsOfService: Terms of service
+servers:
+  - url: http://localhost:8282/api/v1
+    description: Local ENV
+
+paths:
+  /users:
+    post:
+      summary: Create a new user
+      tags:
+        - User
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserDto'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserDto'
+        '400':
+          description: Bad Request
+        '409':
+          description: Conflict - Username or Email already exists
+
+    get:
+      summary: Get all users
+      tags:
+        - User
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UserDto'
+
+  /users/{id}:
+    put:
+      summary: Update an existing user
+      tags:
+        - User
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserDto'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserDto'
+        '400':
+          description: Bad Request
+        '404':
+          description: User not found
+
+    delete:
+      summary: Delete a user
+      tags:
+        - User
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '204':
+          description: Successful operation
+        '404':
+          description: User not found
+
+  /users/{id}/ticket:
+    get:
+      summary: Get tickets for a specific user
+      tags:
+        - User
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TicketDto'
+        '404':
+          description: User not found
+
+  /tickets:
+    post:
+      summary: Create a new ticket
+      tags:
+        - Ticket
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TicketDto'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TicketDto'
+        '400':
+          description: Bad Request
+
+    get:
+      summary: Get all tickets
+      tags:
+        - Ticket
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TicketDto'
+
+  /tickets/{id}:
+    get:
+      summary: Get a ticket by ID
+      tags:
+        - Ticket
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TicketDto'
+        '404':
+          description: Ticket not found
+
+    put:
+      summary: Update an existing ticket
+      tags:
+        - Ticket
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TicketDto'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TicketDto'
+        '400':
+          description: Bad Request
+        '404':
+          description: Ticket not found
+
+    delete:
+      summary: Delete a ticket
+      tags:
+        - Ticket
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '204':
+          description: Successful operation
+        '404':
+          description: Ticket not found
+
+  /tickets/{id}/assign/{userId}:
+    put:
+      summary: Assign a ticket to a user
+      tags:
+        - Ticket
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssignedDto'
+        '404':
+          description: Ticket or User not found
+
+components:
+  schemas:
+    UserDto:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        username:
+          type: string
+        email:
+          type: string
+          format: email
+      required:
+        - username
+        - email
+
+    TicketDto:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        title:
+          type: string
+        description:
+          type: string
+        status:
+          type: string
+          enum: [PENDING, DONE, CANCEL]
+      required:
+        - title
+        - status
+        - userId
+
+    AssignedDto:
+      type: object
+      properties:
+        userId:
+          type: integer
+          format: int64
+        username:
+          type: string
+        email:
+          type: string
+        tickets:
+          $ref: '#/components/schemas/TicketDto'
