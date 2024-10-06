@@ -1,5 +1,6 @@
 package io.ennov.ticket_management.shared.handlerException;
 
+import io.ennov.ticket_management.shared.ConflictAssignException;
 import io.ennov.ticket_management.user.EmailAlreadyExistsException;
 import io.ennov.ticket_management.ticket.TicketNotFoundException;
 import io.ennov.ticket_management.user.UserNotFoundException;
@@ -18,6 +19,12 @@ import java.util.Date;
 @RestControllerAdvice
 @Slf4j
 public class ExceptionManager extends ResponseEntityExceptionHandler {
+
+    @ExceptionHandler(ConflictAssignException.class)
+    public ResponseEntity<Object> handleConflictAssignException(ConflictAssignException ex, WebRequest request) {
+        log.error(ex.getMessage(), ex);
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.CONFLICT);
+    }
 
     @ExceptionHandler(TicketNotFoundException.class)
     public ResponseEntity<Object> handleTicketNotFoundException(TicketNotFoundException ex, WebRequest request) {

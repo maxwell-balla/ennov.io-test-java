@@ -1,5 +1,6 @@
 package io.ennov.ticket_management.unit.shared.handlerException;
 
+import io.ennov.ticket_management.shared.ConflictAssignException;
 import io.ennov.ticket_management.shared.handlerException.ApiResponse;
 import io.ennov.ticket_management.shared.handlerException.ExceptionManager;
 import io.ennov.ticket_management.ticket.TicketNotFoundException;
@@ -99,6 +100,24 @@ public class ExceptionManagerTest {
             // Then
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
             assertThat(response.getBody()).isEqualTo("Email already exists");
+        }
+    }
+
+    @Nested
+    @DisplayName("ConflictAssignException Tests")
+    class ConflictAssignExceptionTests {
+        @Test
+        @DisplayName("Should handle ConflictAssignException")
+        void shouldHandleConflictAssignException() {
+            // Given
+            ConflictAssignException ex = new ConflictAssignException("Ticket is already assigned to another user");
+
+            // When
+            ResponseEntity<Object> response = exceptionManager.handleConflictAssignException(ex, webRequest);
+
+            // Then
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
+            assertThat(response.getBody()).isEqualTo("Ticket is already assigned to another user");
         }
     }
 
