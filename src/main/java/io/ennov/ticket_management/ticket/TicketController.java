@@ -1,6 +1,7 @@
 package io.ennov.ticket_management.ticket;
 
 import io.ennov.ticket_management.shared.AssignedDto;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -10,6 +11,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("tickets")
+@Tag(name = "Ticket")
 @RequiredArgsConstructor
 public class TicketController {
 
