@@ -1,6 +1,7 @@
 package io.ennov.ticket_management.ticket;
 
 import io.ennov.ticket_management.shared.AssignedDto;
+import io.ennov.ticket_management.shared.ConflictAssignException;
 import io.ennov.ticket_management.user.User;
 import io.ennov.ticket_management.user.UserNotFoundException;
 import io.ennov.ticket_management.user.UserRepository;
@@ -77,6 +78,9 @@ public class TicketService {
                 .orElseThrow(() -> new UserNotFoundException(USER_NOT_FOUND_MESSAGE + userId));
         Ticket ticket = ticketRepository.findById(id)
                 .orElseThrow(() -> new TicketNotFoundException(TICKET_NOT_FOUND_MESSAGE + id));
+        if (ticket.getUser() != null) {
+            throw new ConflictAssignException("Ticket is already assigned to another user");
+        }
         ticket.setUser(user);
         ticketRepository.save(ticket);
         return mergeToAssignedDto(user, ticket);
